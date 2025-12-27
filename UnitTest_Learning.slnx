@@ -1,3 +1,5 @@
 <Solution>
+  <Project Path="UnitTest.App/UnitTest.App.csproj" />
   <Project Path="xUnitTest.App/xUnitTest.App.csproj" />
+  <Project Path="xUnitTest.Test/xUnitTest.Test.csproj" />
 </Solution>
