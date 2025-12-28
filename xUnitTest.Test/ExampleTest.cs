@@ -5,12 +5,20 @@ namespace xUnitTest.Test
     public class ExampleTest
     {
 
+        // How to named test methods?
+        // MethodName_StateUnderTest_ExpectedBehavior
+
+        public Calculator calculator { get; set; }
+        public ExampleTest()
+        {
+             calculator = new Calculator();
+        }
+
+        // Sum_TwoPositiveIntegers_ReturnsTotalValue
         [Fact] // Test method with no parameters
         public void SumTest()
         {
             // Arrange
-            var calculator = new Calculator();
-
             int a = 5;
             int b = 10;
             int expected = 15;
@@ -24,11 +32,10 @@ namespace xUnitTest.Test
 
         [Theory] // Test method with parameters
         [InlineData(3, 4, 7)]
-        public void SumTest_WithParameters(int a, int b, int expected)
+        [InlineData(5, 10, 15)]
+        //[InlineData(2, 2, 5)]
+        public void Sum_TwoPositiveIntegers_ReturnsTotalValue(int a, int b, int expected)
         {
-            // Arrange
-            var calculator = new Calculator();
-
             // Act
             int result = calculator.Sum(a, b);
 
@@ -37,16 +44,18 @@ namespace xUnitTest.Test
         }
 
 
+
+
         [Fact] 
         public void Test_Equal()
         {
             //  Assert.Equal<valueType>(expected, actual);
 
             Assert.Equal<int>(10, 10);      // Success
-            Assert.Equal<int>(5, 10);       // Error
+            //Assert.Equal<int>(5, 10);       // Error
 
-            Assert.Equal<int>(10, 10);      // Error
-            Assert.Equal<int>(5, 10);       // Success
+            //Assert.NotEqual<int>(10, 10);      // Error
+            Assert.NotEqual<int>(5, 10);       // Success
         }
 
         [Fact]
@@ -55,18 +64,18 @@ namespace xUnitTest.Test
             //  Assert.Contains(expected, actual);
 
             Assert.Contains("Ecmel", "Ecmel Sadıkoğlu");        // Success
-            Assert.Contains("Fatih", "Ecmel Sadıkoğlu");        // Error
+            //Assert.Contains("Fatih", "Ecmel Sadıkoğlu");        // Error
 
-            Assert.DoesNotContain("Ecmel", "Ecmel Sadıkoğlu");  // Error
+            //Assert.DoesNotContain("Ecmel", "Ecmel Sadıkoğlu");  // Error
             Assert.DoesNotContain("Fatih", "Ecmel Sadıkoğlu");  // Success
 
 
             var list = new List<int>() { 1, 2, 3, 4, 5 };
 
             Assert.Contains<int>(3, list);                      // Success
-            Assert.Contains<int>(10, list);                     // Error
+            //Assert.Contains<int>(10, list);                     // Error
 
-            Assert.DoesNotContain<int>(3, list);                // Error
+            //Assert.DoesNotContain<int>(3, list);                // Error
             Assert.DoesNotContain<int>(10, list);               // Success
         }
 
@@ -80,9 +89,9 @@ namespace xUnitTest.Test
             bool falseCondition = 5 < 3;
 
             Assert.True(trueCondition);       // Success
-            Assert.True(falseCondition);      // Error
+            //Assert.True(falseCondition);      // Error
 
-            Assert.False(trueCondition);      // Error
+            //Assert.False(trueCondition);      // Error
             Assert.False(falseCondition);     // Success
 
         }
@@ -93,9 +102,9 @@ namespace xUnitTest.Test
             //  Assert.Matches(regexPattern, actualString);
 
             Assert.Matches("^Ecmel", "Ecmel Sadıkoğlu");              // Success
-            Assert.Matches("^Sadıkoğlu", "Ecmel Sadıkoğlu");          // Error
+            //Assert.Matches("^Sadıkoğlu", "Ecmel Sadıkoğlu");          // Error
 
-            Assert.DoesNotMatch("^Ecmel", "Ecmel Sadıkoğlu");         // Error
+            //Assert.DoesNotMatch("^Ecmel", "Ecmel Sadıkoğlu");         // Error
             Assert.DoesNotMatch("^Sadıkoğlu", "Ecmel Sadıkoğlu");     // Success
         }
 
@@ -108,9 +117,9 @@ namespace xUnitTest.Test
             //  Assert.EndsWith(expectedEndString, actualString);
 
             Assert.StartsWith("Ecmel", "Ecmel Sadıkoğlu");      // Success
-            Assert.StartsWith("Sadıkoğlu", "Ecmel Sadıkoğlu");  // Error
+            //Assert.StartsWith("Sadıkoğlu", "Ecmel Sadıkoğlu");  // Error
 
-            Assert.EndsWith("Ecmel", "Ecmel Sadıkoğlu");        // Error
+            //Assert.EndsWith("Ecmel", "Ecmel Sadıkoğlu");        // Error
             Assert.EndsWith("Sadıkoğlu", "Ecmel Sadıkoğlu");    // Success
         }
 
@@ -120,16 +129,16 @@ namespace xUnitTest.Test
             //  Assert.Empty(collection);
 
             Assert.Empty(new List<int>());            // Success
-            Assert.Empty(new List<int>() { 1 });      // Error
+            //Assert.Empty(new List<int>() { 1 });      // Error
 
-            Assert.NotEmpty(new List<int>());         // Error
+            //Assert.NotEmpty(new List<int>());         // Error
             Assert.NotEmpty(new List<int>() { 1 });   // Success
 
 
             Assert.Empty("");          // Success
-            Assert.Empty("Ecmel");     // Error
+            //Assert.Empty("Ecmel");     // Error
 
-            Assert.NotEmpty("");       // Error
+            //Assert.NotEmpty("");       // Error
             Assert.NotEmpty("Ecmel");  // Success
         }
 
@@ -139,9 +148,9 @@ namespace xUnitTest.Test
             //  Assert.InRange<T>(actual, low, high);
 
             Assert.InRange<int>(5, 1, 10);      // Success
-            Assert.InRange<int>(15, 1, 10);     // Error
+            //Assert.InRange<int>(15, 1, 10);     // Error
 
-            Assert.NotInRange<int>(5, 1, 10);   // Error
+            //Assert.NotInRange<int>(5, 1, 10);   // Error
             Assert.NotInRange<int>(15, 1, 10);  // Success
         }
 
@@ -153,8 +162,8 @@ namespace xUnitTest.Test
             //  Assert.Single(collection);
 
             Assert.Single<int>(new List<int>() { 1 });          // Success
-            Assert.Single<int>(new List<int>() { 1, 2 });       // Error
-            Assert.Single<int>(new List<int>());                // Error
+            //Assert.Single<int>(new List<int>() { 1, 2 });       // Error
+            //Assert.Single<int>(new List<int>());                // Error
         }
 
         [Fact]
@@ -166,13 +175,13 @@ namespace xUnitTest.Test
 
             int integer = 10;
 
-            //Assert.IsType(integer.GetType(), integer);   // Success
-            //Assert.IsType(typeof(int), integer);         // Success
+            Assert.IsType(integer.GetType(), integer);   // Success
+            Assert.IsType(typeof(int), integer);         // Success
 
             Assert.IsType<int>(integer);           // Success
-            Assert.IsType<string>(integer);        // Error
+            //Assert.IsType<string>(integer);        // Error
 
-            Assert.IsNotType<int>(integer);        // Error
+            //Assert.IsNotType<int>(integer);        // Error
             Assert.IsNotType<string>(integer);     // Success
         }
 
@@ -189,10 +198,10 @@ namespace xUnitTest.Test
 
             Assert.IsAssignableFrom<Exception>(ex);               // Success
             Assert.IsAssignableFrom<ArgumentNullException>(ex);    // Success
-            Assert.IsAssignableFrom<InvalidOperationException>(ex); // Error
+            //Assert.IsAssignableFrom<InvalidOperationException>(ex); // Error
 
-            Assert.IsNotAssignableFrom<Exception>(ex);               // Error
-            Assert.IsNotAssignableFrom<ArgumentNullException>(ex);    // Error
+            //Assert.IsNotAssignableFrom<Exception>(ex);               // Error
+            //Assert.IsNotAssignableFrom<ArgumentNullException>(ex);    // Error
             Assert.IsNotAssignableFrom<InvalidOperationException>(ex); // Success
         }
 
@@ -202,9 +211,9 @@ namespace xUnitTest.Test
             //  Assert.Null(object);
 
             Assert.Null(null);                   // Success
-            Assert.Null(new Object());           // Error
+            //Assert.Null(new Object());           // Error
 
-            Assert.NotNull(null);                // Error
+            //Assert.NotNull(null);                // Error
             Assert.NotNull(new Object());        // Success
         }
 
@@ -218,9 +227,9 @@ namespace xUnitTest.Test
             object obj3 = new Object();
 
             Assert.Same(obj1, obj2);      // Success
-            Assert.Same(obj1, obj3);      // Error
+            //Assert.Same(obj1, obj3);      // Error
 
-            Assert.NotSame(obj1, obj2);   // Error
+            //Assert.NotSame(obj1, obj2);   // Error
             Assert.NotSame(obj1, obj3);   // Success
         }
 
