@@ -8,10 +8,10 @@ namespace xUnitTest.Test
         // How to named test methods?
         // MethodName_StateUnderTest_ExpectedBehavior
 
-        public Calculator calculator { get; set; }
+        public CalculatorService calculatorService { get; set; }
         public ExampleTest()
         {
-             calculator = new Calculator();
+            calculatorService = new CalculatorService();
         }
 
         // Sum_TwoPositiveIntegers_ReturnsTotalValue
@@ -24,7 +24,7 @@ namespace xUnitTest.Test
             int expected = 15;
 
             // Act
-            int result = calculator.Sum(a, b);
+            int result = calculatorService.Sum(a, b);
 
             // Assert
             Assert.Equal<int>(expected, result);
@@ -37,7 +37,7 @@ namespace xUnitTest.Test
         public void Sum_TwoPositiveIntegers_ReturnsTotalValue(int a, int b, int expected)
         {
             // Act
-            int result = calculator.Sum(a, b);
+            int result = calculatorService.Sum(a, b);
 
             // Assert
             Assert.Equal<int>(expected, result);

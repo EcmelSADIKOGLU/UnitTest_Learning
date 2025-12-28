@@ -4,7 +4,7 @@ using System.Text;
 
 namespace UnitTest.App
 {
-    public class Calculator
+    public class CalculatorService: ICalculatorService
     {
         public int Sum(int a, int b)
         {
