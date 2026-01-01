@@ -1,7 +1,5 @@
 <Solution>
-  <Folder Name="/FonctionExamples/">
-    <Project Path="UnitTest.App/UnitTest.App.csproj" />
-    <Project Path="xUnitTest.Test/xUnitTest.Test.csproj" />
-  </Folder>
+  <Project Path="UnitTest.App/UnitTest.App.csproj" />
   <Project Path="UnitTest.MVC.Web/UnitTest.MVC.Web.csproj" Id="ca82619c-1fc0-433e-ba18-db0bdd28c2cf" />
+  <Project Path="xUnitTest.Test/xUnitTest.Test.csproj" />
 </Solution>

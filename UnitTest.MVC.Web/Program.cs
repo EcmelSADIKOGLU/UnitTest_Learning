@@ -1,10 +1,13 @@
 using Microsoft.EntityFrameworkCore;
 using UnitTest.MVC.Web.Models;
+using UnitTest.MVC.Web.Repository;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
 builder.Services.AddDbContext<UnitTestLearningDbContext>(options =>
 {

@@ -6,22 +6,18 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using UnitTest.MVC.Web.Models;
+using UnitTest.MVC.Web.Repository;
 
 namespace UnitTest.MVC.Web.Controllers
 {
-    public class ProductsController : Controller
+    public class ProductsController(IRepository<Product> repository) : Controller
     {
-        private readonly UnitTestLearningDbContext _context;
-
-        public ProductsController(UnitTestLearningDbContext context)
-        {
-            _context = context;
-        }
 
         // GET: Products
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Products.ToListAsync());
+            var value = await repository.GetAllAsync();
+            return View(value);
         }
 
         // GET: Products/Details/5
@@ -32,8 +28,7 @@ namespace UnitTest.MVC.Web.Controllers
                 return NotFound();
             }
 
-            var product = await _context.Products
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var product = await repository.GetByIdAsync(id.Value);
             if (product == null)
             {
                 return NotFound();
@@ -57,8 +52,7 @@ namespace UnitTest.MVC.Web.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(product);
-                await _context.SaveChangesAsync();
+                await repository.AddAsync(product);
                 return RedirectToAction(nameof(Index));
             }
             return View(product);
@@ -72,7 +66,7 @@ namespace UnitTest.MVC.Web.Controllers
                 return NotFound();
             }
 
-            var product = await _context.Products.FindAsync(id);
+            var product = await repository.GetByIdAsync(id.Value);
             if (product == null)
             {
                 return NotFound();
@@ -96,12 +90,11 @@ namespace UnitTest.MVC.Web.Controllers
             {
                 try
                 {
-                    _context.Update(product);
-                    await _context.SaveChangesAsync();
+                    await repository.UpdateAsync(product);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ProductExists(product.Id))
+                    if (ProductExists(product.Id))
                     {
                         return NotFound();
                     }
@@ -118,19 +111,15 @@ namespace UnitTest.MVC.Web.Controllers
         // GET: Products/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
-            var product = await _context.Products
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (product == null)
-            {
-                return NotFound();
-            }
+            var product = await repository.GetByIdAsync(id.Value);
 
-            return View(product);
+            if (product == null) return NotFound();
+
+            await repository.DeleteAsync(product);
+
+            return RedirectToAction(nameof(Index));
         }
 
         // POST: Products/Delete/5
@@ -138,19 +127,18 @@ namespace UnitTest.MVC.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var product = await _context.Products.FindAsync(id);
+            var product = await repository.GetByIdAsync(id);
             if (product != null)
             {
-                _context.Products.Remove(product);
+                await repository.DeleteAsync(product);
             }
-
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool ProductExists(int id)
         {
-            return _context.Products.Any(e => e.Id == id);
+            var value = repository.GetAllAsync().Result;
+            return value.Any(e => e.Id == id);
         }
     }
 }

@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace UnitTest.App
+namespace UnitTest.App;
+
+public interface ICalculatorService
 {
-    public interface ICalculatorService
-    {
-        public int Sum(int number1, int number2);
-    }
+    public int Sum(int number1, int number2);
 }
