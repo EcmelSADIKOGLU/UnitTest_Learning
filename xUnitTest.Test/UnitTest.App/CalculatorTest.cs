@@ -1,6 +1,6 @@
 ﻿using UnitTest.App;
 
-namespace xUnitTest.Test
+namespace xUnitTest.Test.UnitTest.App
 {
     public class CalculatorTest
     {

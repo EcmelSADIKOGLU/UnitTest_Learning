@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\UnitTest.App\UnitTest.App.csproj" />
+    <ProjectReference Include="..\UnitTest.MVC.Web\UnitTest.MVC.Web.csproj" />
   </ItemGroup>
 
   <ItemGroup>
