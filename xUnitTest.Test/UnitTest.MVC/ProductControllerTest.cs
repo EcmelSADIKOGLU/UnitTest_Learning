@@ -100,6 +100,7 @@ public class ProductControllerTest
 
         Assert.Equal(product.Id, model.Id);
         Assert.Equal(product.Name, model.Name);
+        Assert.Equal(product.Price, model.Price);
 
     }
 
@@ -118,49 +119,89 @@ public class ProductControllerTest
     public async Task Create_PostRequest_InvalidModelState_ReturnsViewWithProduct()
     {
         // Arrange
-        var newProduct = new Product
-        {
-            Name = null,
-            Price = 5,
-            Stock = 50,
-            Color = "Pink"
-        };
+        var exampleProduct = _products.First();
 
         _controller.ModelState.AddModelError("Name", "The Name field is required.");
 
         // Act
-        var result = await _controller.Create(newProduct);
+        var result = await _controller.Create(exampleProduct);
 
         // Assert
         var viewResult = Assert.IsType<ViewResult>(result);
         var model = Assert.IsAssignableFrom<Product>(viewResult.Model);
-        Assert.Equal(newProduct, model);
+        Assert.Equal(exampleProduct, model);
         _mockRepository.Verify(r => r.AddAsync(It.IsAny<Product>()), Times.Never);
     }
 
-    [Theory]
-    [InlineData("Eraser", 5, 50, "Pink")]
-    public async Task Create_PostRequest_ValidModelState_RedirectToIndexAction(string name, decimal price, int stock, string color)
+
+    [Fact]
+    public async Task Create_PostRequest_ValidModelState_RedirectToIndexAction()
     {
-        // Arrange
-        var newProduct = new Product
-        {
-            Name = name,
-            Price = price,
-            Stock = stock,
-            Color = color
-        };
 
         // Act
-        var result = await _controller.Create(newProduct);
+        var result = await _controller.Create(_products.First());
 
         // Assert
         var redirect = Assert.IsType<RedirectToActionResult>(result);
         Assert.Equal(nameof(_controller.Index), redirect.ActionName);
         _mockRepository.Verify(r => r.AddAsync(It.IsAny<Product>()), Times.Once);
     }
-
-
     
+    [Fact]
+    public async Task Edit_GetRequest_NullId_RedirectToIndexAction()
+    {
+        // Arrange
+        int? id = null;
+
+        //Act
+        var result = await _controller.Edit(id);
+
+        //Assert
+
+        var redirect = Assert.IsType<RedirectToActionResult>(result);
+        Assert.Equal(nameof(_controller.Index), redirect.ActionName);
+    }
+
+    [Fact]
+    public async Task Edit_GetRequest_NotExistProduct_ReturnsNotFoundResult()
+    {
+        //Arrange
+        int id = 0;
+        _mockRepository.Setup(repo => repo.GetByIdAsync(id)).ReturnsAsync((Product?)null);
+
+        //Act
+        var result = await _controller.Edit(id);
+
+        //Assert
+        var notFound = Assert.IsType<NotFoundResult>(result);
+        Assert.Equal<int>(404, notFound.StatusCode);
+    }
+
+    [Theory]
+    [InlineData(1)]
+    [InlineData(2)]
+    public async Task Edit_GetRequest_ExistProduct_ReturnsViewWithProduct(int id)
+    {
+        //Arrange
+        Product product = _products.First(x => x.Id == id);
+        _mockRepository.Setup(repo => repo.GetByIdAsync(id)).ReturnsAsync(product);
+
+        //Act
+        var result = await _controller.Edit(id);
+
+        //Assert
+        var viewResult = Assert.IsType<ViewResult>(result);
+        var model = Assert.IsAssignableFrom<Product>(viewResult.Model);
+
+        Assert.Equal(product.Id, model.Id);
+        Assert.Equal(product.Name, model.Name);
+        Assert.Equal(product.Price, model.Price);
+
+    }
+
+
+
+
+
 
 }
