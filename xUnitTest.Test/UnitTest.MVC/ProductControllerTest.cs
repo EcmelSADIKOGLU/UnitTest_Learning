@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Moq;
 using UnitTest.MVC.Web.Controllers;
 using UnitTest.MVC.Web.Models;
@@ -68,7 +69,7 @@ public class ProductControllerTest
 
     [Theory]
     [InlineData(0)]
-    public async Task Details_NotExistProduct_ReturnsNotFoundResult(int? id)
+    public async Task Details_NotExistProductId_ReturnsNotFoundResult(int? id)
     {
         // Arrange
         _mockRepository.Setup(repo => repo.GetByIdAsync(id!.Value)).ReturnsAsync((Product?)null);
@@ -163,7 +164,7 @@ public class ProductControllerTest
     }
 
     [Fact]
-    public async Task Edit_GetRequest_NotExistProduct_ReturnsNotFoundResult()
+    public async Task Edit_GetRequest_NotExistProductId_ReturnsNotFoundResult()
     {
         //Arrange
         int id = 0;
@@ -197,6 +198,89 @@ public class ProductControllerTest
         Assert.Equal(product.Name, model.Name);
         Assert.Equal(product.Price, model.Price);
 
+    }
+
+    [Fact]
+    public async Task Edit_PostRequest_WrongProductId_ReturnsNotFoundResult()
+    {
+        //Arrange
+        int id = 1;
+        Product product = _products.First(x => x.Id == 2);
+
+        //Act
+        var response = await _controller.Edit(id, product);
+
+        //Assert
+        var notFound = Assert.IsType<NotFoundResult>(response);
+        Assert.Equal<int>(404, notFound.StatusCode);
+    }
+
+    [Fact]
+    public async Task Edit_PostRequest_InvalidModelState_ReturnsViewWithProduct()
+    {
+        //Arrange
+        int id = 1;
+        Product product = _products.First(x => x.Id == 1);
+
+        _controller.ModelState.AddModelError("Name", "Example_ModelState_Error");
+
+        //Act
+        var response = await _controller.Edit(id, product);
+
+        //Assert
+        var viewResult = Assert.IsType<ViewResult>(response);
+        var model = Assert.IsAssignableFrom<Product>(viewResult.Model);
+        Assert.Equal<int>(product.Id, model.Id);
+
+        _mockRepository.Verify(x => x.UpdateAsync(It.IsAny<Product>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task Edit_PostRequest_ValidModelStateWithError_ProductNotExist_ReturnNotFound()
+    {
+        //Arrange
+        int id = 1;
+        Product product = _products.First(x => x.Id == 1);
+        _mockRepository.Setup(x => x.GetByIdAsync(id)).ReturnsAsync((Product?)null);
+        _mockRepository.Setup(r => r.UpdateAsync(It.IsAny<Product>())).ThrowsAsync(new DbUpdateConcurrencyException());
+
+        //Act
+        var response = await _controller.Edit(id, product);
+
+        //Assert
+        var notFound = Assert.IsType<NotFoundResult>(response);
+        Assert.Equal<int>(404, notFound.StatusCode);
+        _mockRepository.Verify(x => x.UpdateAsync(It.IsAny<Product>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task Edit_PostRequest_ValidModelStateWithError_ProductExist_ThrowException()
+    {
+        //Arrange
+        int id = 1;
+        Product product = _products.First(x => x.Id == 1);
+        _mockRepository.Setup(x => x.GetByIdAsync(id)).ReturnsAsync(product);
+        _mockRepository.Setup(r => r.UpdateAsync(It.IsAny<Product>())).ThrowsAsync(new DbUpdateConcurrencyException());
+
+        //Act - Assert
+        await Assert.ThrowsAsync<DbUpdateConcurrencyException>(() => _controller.Edit(id, product));
+        _mockRepository.Verify(x => x.UpdateAsync(It.IsAny<Product>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task Edit_PostRequest_ValidModelStateWithoutError_RedirectToIndexAction()
+    {
+        //Arrange
+        int id = 1;
+        Product product = _products.First(x => x.Id == 1);
+
+        //Act
+        var response = await _controller.Edit(id, product);
+
+        //Assert
+        var redirect = Assert.IsType<RedirectToActionResult>(response);
+        Assert.Equal(nameof(_controller.Index), redirect.ActionName);
+        _mockRepository.Verify(x => x.UpdateAsync(It.IsAny<Product>()), Times.Once);
     }
 
 

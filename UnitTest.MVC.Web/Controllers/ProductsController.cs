@@ -1,10 +1,11 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using UnitTest.MVC.Web.Models;
 using UnitTest.MVC.Web.Repository;
 
@@ -48,7 +49,7 @@ namespace UnitTest.MVC.Web.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Price,Stock,Color")] Product product)
+        public async Task<IActionResult> Create(Product product)
         {
             if (ModelState.IsValid)
             {
@@ -79,7 +80,7 @@ namespace UnitTest.MVC.Web.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Price,Stock,Color")] Product product)
+        public async Task<IActionResult> Edit(int id, Product product)
         {
             if (id != product.Id)
             {
@@ -94,14 +95,9 @@ namespace UnitTest.MVC.Web.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (ProductExists(product.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    if (!await ProductExistsAsync(product.Id)) return NotFound();
+
+                    throw;
                 }
                 return RedirectToAction(nameof(Index));
             }
@@ -135,10 +131,10 @@ namespace UnitTest.MVC.Web.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        private bool ProductExists(int id)
+        private async Task<bool> ProductExistsAsync(int id)
         {
-            var value = repository.GetAllAsync().Result;
-            return value.Any(e => e.Id == id);
+            var value = await repository.GetByIdAsync(id);
+            return value is not null;
         }
     }
 }
