@@ -107,27 +107,27 @@ namespace UnitTest.MVC.Web.Controllers
         // GET: Products/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null) return NotFound();
+            if (id == null) return RedirectToAction(nameof(Index));
+
+            var product = await repository.GetByIdAsync(id.Value);
+
+            if (product == null) return NotFound();
+
+            return View(product);
+        }
+
+        // POST: Products/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int? id)
+        {
+            if (id == null) return RedirectToAction(nameof(Index));
 
             var product = await repository.GetByIdAsync(id.Value);
 
             if (product == null) return NotFound();
 
             await repository.DeleteAsync(product);
-
-            return RedirectToAction(nameof(Index));
-        }
-
-        // POST: Products/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var product = await repository.GetByIdAsync(id);
-            if (product != null)
-            {
-                await repository.DeleteAsync(product);
-            }
             return RedirectToAction(nameof(Index));
         }
 

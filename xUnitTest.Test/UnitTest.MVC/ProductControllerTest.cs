@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Moq;
+using System.Linq;
 using UnitTest.MVC.Web.Controllers;
 using UnitTest.MVC.Web.Models;
 using UnitTest.MVC.Web.Repository;
@@ -283,6 +284,104 @@ public class ProductControllerTest
         _mockRepository.Verify(x => x.UpdateAsync(It.IsAny<Product>()), Times.Once);
     }
 
+    [Fact]
+    public async Task Delete_NullId_RedirectToIndexAction()
+    {
+        //Arrange
+        int? id = null;
+
+        //Act
+        var response = await _controller.Delete(id);
+
+        //Assert
+        var redirect = Assert.IsType<RedirectToActionResult>(response);
+        Assert.Equal(nameof(_controller.Index), redirect.ActionName);
+    }
+
+    [Fact]
+    public async Task Delete_NotExistProduct_ReturnsNotFound()
+    {
+        //Arrange
+        int id = 0;
+        _mockRepository.Setup(repo => repo.GetByIdAsync(id)).ReturnsAsync((Product?)null);
+
+        //Act
+        var response = await _controller.Delete(id);
+
+        //Assert
+        var notFound = Assert.IsType<NotFoundResult>(response);
+        Assert.Equal<int>(404, notFound.StatusCode);
+
+    }
+
+    [Fact]
+    public async Task Delete_ExistProduct_ReturnsViewWithProduct()
+    {
+        //Arrange
+        int id = 1;
+        Product product = _products.First(x => x.Id == id);
+        _mockRepository.Setup(repo => repo.GetByIdAsync(id)).ReturnsAsync(product);
+
+        //Act
+        var response = await _controller.Delete(id);
+
+        //Assert
+        var viewResult = Assert.IsType<ViewResult>(response);
+        var model = Assert.IsAssignableFrom<Product>(viewResult.Model);
+
+        Assert.Equal(product.Id, model.Id);
+        Assert.Equal(product.Name, model.Name);
+        Assert.Equal(product.Price, model.Price);
+    }
+
+    [Fact]
+    public async Task DeleteConfirmed_NullId_RedirectToIndexAction()
+    {
+        //Arrange
+        int? id = null;
+
+        //Act
+        var response = await _controller.DeleteConfirmed(id);
+
+        //Assert
+        var redirect = Assert.IsType<RedirectToActionResult>(response);
+        Assert.Equal(nameof(_controller.Index), redirect.ActionName);
+        _mockRepository.Verify(repo => repo.DeleteAsync(It.IsAny<Product>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task DeleteConfirmed_NotExistProduct_ReturnsNotFound()
+    {
+        //Arrange
+        int id = 0;
+        _mockRepository.Setup(repo => repo.GetByIdAsync(id)).ReturnsAsync((Product?)null);
+
+        //Act
+        var response = await _controller.DeleteConfirmed(id);
+
+        //Assert
+        var notFound = Assert.IsType<NotFoundResult>(response);
+        Assert.Equal<int>(404, notFound.StatusCode);
+        _mockRepository.Verify(repo => repo.DeleteAsync(It.IsAny<Product>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task DeleteConfirmed_ExistProduct_RedirectToIndexAction()
+    {
+        //Arrange
+        int id = 1;
+        Product product = _products.First(x => x.Id == id);
+        _mockRepository.Setup(repo => repo.GetByIdAsync(id)).ReturnsAsync(product);
+
+        //Act
+        var response = await _controller.DeleteConfirmed(id);
+
+        //Assert
+        var redirect = Assert.IsType<RedirectToActionResult>(response);
+        Assert.Equal(nameof(_controller.Index), redirect.ActionName);
+
+        _mockRepository.Verify(r => r.DeleteAsync(It.Is<Product>(p => p.Id == id)), Times.Once);
+    }
 
 
 
