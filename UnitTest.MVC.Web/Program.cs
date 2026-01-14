@@ -1,4 +1,5 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using UnitTest.MVC.Web.Endpoints;
 using UnitTest.MVC.Web.Models;
 using UnitTest.MVC.Web.Repository;
 
@@ -13,6 +14,8 @@ builder.Services.AddDbContext<UnitTestLearningDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("SqlConnection"));
 });
+
+builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
@@ -31,6 +34,8 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
+
+app.MapProductEndpoints();
 
 
 app.Run();

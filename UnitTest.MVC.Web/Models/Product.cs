@@ -20,3 +20,5 @@ public partial class Product
     [Required]
     public string? Color { get; set; }
 }
+
+
