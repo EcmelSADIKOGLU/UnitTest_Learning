@@ -15,6 +15,7 @@ builder.Services.AddDbContext<UnitTestLearningDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("SqlConnection"));
 });
 
+
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
@@ -39,3 +40,6 @@ app.MapProductEndpoints();
 
 
 app.Run();
+
+public partial class Program { }
+

@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Moq;
-using System.Linq;
 using UnitTest.MVC.Web.Controllers;
 using UnitTest.MVC.Web.Models;
 using UnitTest.MVC.Web.Repository;

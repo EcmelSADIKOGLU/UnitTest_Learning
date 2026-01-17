@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.OpenApi;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using UnitTest.MVC.Web.Models;
 using UnitTest.MVC.Web.Repository;
@@ -9,24 +9,27 @@ namespace UnitTest.MVC.Web.Endpoints
 {
     public static class ProductEndpoints
     {
-        public static void MapProductEndpoints(this IEndpointRouteBuilder routes, IRepository<Product> _repository)
+        public static void MapProductEndpoints(this IEndpointRouteBuilder routes)
         {
+
             var group = routes.MapGroup("/api/Products").WithTags(nameof(Product));
+
+
 
             // Get All
 
-            group.MapGet("/", async () =>
+            group.MapGet("/", async (IRepository<Product> repository) =>
             {
-                return await _repository.GetAllAsync();
+                return await repository.GetAllAsync();
             })
             .WithName("GetAllProducts");
 
 
             // GetById
 
-            group.MapGet("/{id}", async Task<Results<Ok<Product>, NotFound>> (int id) =>
+            group.MapGet("/{id}", async Task<Results<Ok<Product>, NotFound>> (int id, IRepository<Product> repository) =>
             {
-                var product = await _repository.GetByIdAsync(id);
+                var product = await repository.GetByIdAsync(id);
 
                 return product != null ? TypedResults.Ok(product) : TypedResults.NotFound();
                 
@@ -35,16 +38,21 @@ namespace UnitTest.MVC.Web.Endpoints
 
             // Edit
 
-            group.MapPut("/{id}", async Task<Results<Ok, NotFound>> (int id, Product product) =>
+            group.MapPut("/", async Task<Results<Ok, NotFound>> ([FromBody]Product product, [FromServices]IRepository<Product> repository) =>
             {
-                var isExist = await _repository.GetByIdAsync(id) != null;
+                var existProduct = await repository.GetByIdAsync(product.Id);
 
-                if (!isExist)
+                if (existProduct is null)
                 {
                     return TypedResults.NotFound();
                 }
 
-                await _repository.UpdateAsync(product);
+                existProduct.Name = product.Name;
+                existProduct.Price = product.Price;
+                existProduct.Stock = product.Stock;
+                existProduct.Color = product.Color;
+
+                await repository.UpdateAsync(existProduct);
 
                 return TypedResults.Ok();
             })
@@ -52,10 +60,10 @@ namespace UnitTest.MVC.Web.Endpoints
 
             // Add
 
-            group.MapPost("/", async (Product product) =>
+            group.MapPost("/", async ([FromBody] Product product, [FromServices] IRepository<Product> repository) =>
             {
 
-                await _repository.AddAsync(product);
+                await repository.AddAsync(product);
                 return TypedResults.Created($"/api/Product/{product.Id}", product);
             })
             .WithName("CreateProduct");
@@ -63,17 +71,17 @@ namespace UnitTest.MVC.Web.Endpoints
 
             // Delete
 
-            group.MapDelete("/{id}", async Task<Results<Ok, NotFound>> (int id) =>
+            group.MapDelete("/{id}", async Task<Results<Ok, NotFound>> (int id, IRepository<Product> repository) =>
             {
 
-                var product = await _repository.GetByIdAsync(id);
+                var product = await repository.GetByIdAsync(id);
 
                 if (product is null)
                 {
                     return TypedResults.NotFound();
                 }
 
-                await _repository.DeleteAsync(product);
+                await repository.DeleteAsync(product);
 
                 return TypedResults.Ok();
             })
