@@ -64,7 +64,7 @@ namespace UnitTest.MVC.Web.Endpoints
             {
 
                 await repository.AddAsync(product);
-                return TypedResults.Created($"/api/Product/{product.Id}", product);
+                return TypedResults.Created($"/api/Products/{product.Id}", product);
             })
             .WithName("CreateProduct");
 
